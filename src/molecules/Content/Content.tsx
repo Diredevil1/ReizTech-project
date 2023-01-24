@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 interface Contentprops {
   data: any;
@@ -11,8 +11,32 @@ const Content = (props: Contentprops) => {
   const { data } = props;
   const [currData, setCurrData] = useState(data);
 
+  const handleAllCountries = () => {
+    setCurrData(data);
+  };
+
   const handleReverseData = () => {
-    const newArr = data.reverse();
+    const newArr = currData?.reverse();
+    setCurrData([...newArr]);
+  };
+
+  const handleSmallArea = () => {
+    const lithuania = data?.filter(
+      (country: any) => country.name === "Lithuania"
+    );
+    const newArr = data?.filter(
+      (country: any) => country.area < lithuania[0].area
+    );
+    setCurrData([...newArr]);
+  };
+
+  const handleOceania = () => {
+    const oceania = data?.filter(
+      (country: any) => country.region === "Oceania"
+    );
+    const newArr = data?.filter(
+      (country: any) => country.region === oceania[0].region
+    );
     setCurrData([...newArr]);
   };
 
@@ -20,11 +44,23 @@ const Content = (props: Contentprops) => {
     <div>
       <nav className="flex flex-row justify-between font-semibold text-teal-400">
         <div className="flex gap-4">
-          <button className="border-2 rounded-xl border-teal-400 px-3">
-            Lithuania
+          <button
+            onClick={handleAllCountries}
+            className="border-2 rounded-xl border-teal-400 px-3"
+          >
+            All Countries
           </button>
-          <button className="border-2 rounded-xl border-teal-400 px-3">
-            Oceania
+          <button
+            onClick={handleSmallArea}
+            className="border-2 rounded-xl border-teal-400 px-3"
+          >
+            {`< Lithuania`}
+          </button>
+          <button
+            onClick={handleOceania}
+            className="border-2 rounded-xl border-teal-400 px-3"
+          >
+            Oceania countries
           </button>
         </div>
         <button
@@ -34,7 +70,7 @@ const Content = (props: Contentprops) => {
           A-Z
         </button>
       </nav>
-      {data?.map((country: any, index: number) => {
+      {currData?.map((country: any, index: number) => {
         return (
           <div
             key={index}
