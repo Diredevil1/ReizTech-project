@@ -4,7 +4,7 @@ import Header from "../../molecules/Header/Header";
 import Content from "../../molecules/Content/Content";
 
 const App = () => {
-  const [countryData, setCountryData] = useState();
+  const [countryData, setCountryData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,7 +20,7 @@ const App = () => {
   return (
     <div>
       <Header />
-      <Content data={countryData} />
+      <Content data={countryData} name={""} region={""} area={0} />
     </div>
   );
 };
