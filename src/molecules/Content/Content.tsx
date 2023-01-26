@@ -1,76 +1,100 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-interface Contentprops {
-  data: any;
-  name: string;
-  region: string;
-  area: number;
-}
+import Pagination from "../Pagination/Pagination";
 
-const Content = (props: Contentprops) => {
-  const { data } = props;
-  const [currData, setCurrData] = useState(data);
+const Content = () => {
+  // Fetching and filtering
+  const [countryData, setCountryData] = useState<any[]>([]);
 
-  const handleAllCountries = () => {
-    setCurrData(data);
-  };
+  const [isFilteredData, setIsFilteredData] = useState<any[]>([]);
+  const [isFiltered, setIsFiltered] = useState(false);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await (
+        await fetch("https://restcountries.com/v2/all?fields=name,region,area")
+      ).json();
+
+      setCountryData(data);
+    };
+    fetchData();
+  }, []);
+
+  // Ascending/Descending
+  const [isReversed, setIsReversed] = useState(false);
+
+  // Pagination part
+  const [currentPage, setCurrentPage] = useState(1);
+  const [countriesPerPage, setCountriesPerPage] = useState(5);
+
+  const indexOfLastCountry = currentPage * countriesPerPage;
+  const indexOfFirstCountry = indexOfLastCountry - countriesPerPage;
+
+  const currentCountries = isFiltered
+    ? isFilteredData.slice(indexOfFirstCountry, indexOfLastCountry)
+    : countryData.slice(indexOfFirstCountry, indexOfLastCountry);
+
+  const pages = Math.ceil(
+    isFiltered
+      ? isFilteredData.length / countriesPerPage
+      : countryData.length / countriesPerPage
+  );
+
+  // Handles
   const handleReverseData = () => {
-    const newArr = currData?.reverse();
-    setCurrData([...newArr]);
+    isFiltered ? isFilteredData.reverse() : countryData.reverse();
+    setIsReversed(!isReversed);
   };
 
   const handleSmallArea = () => {
-    const lithuania = data?.filter(
+    const lithuania = countryData.filter(
       (country: any) => country.name === "Lithuania"
     );
-    const newArr = data?.filter(
+    const newArr = countryData.filter(
       (country: any) => country.area < lithuania[0].area
     );
-    setCurrData([...newArr]);
+    setIsFilteredData([...newArr]);
+    setCurrentPage(1);
+    setIsFiltered(true);
   };
 
   const handleOceania = () => {
-    const oceania = data?.filter(
+    const oceania = countryData.filter(
       (country: any) => country.region === "Oceania"
     );
-    const newArr = data?.filter(
+    const newArr = countryData.filter(
       (country: any) => country.region === oceania[0].region
     );
-    setCurrData([...newArr]);
+    setIsFilteredData([...newArr]);
+    setCurrentPage(1);
+    setIsFiltered(true);
   };
 
   return (
     <div>
-      <nav className="flex flex-row justify-between font-semibold text-teal-400">
+      <nav className="flex flex-row justify-between font-semibold text-teal-400 ">
         <div className="flex gap-4">
           <button
-            onClick={handleAllCountries}
-            className="border-2 rounded-xl border-teal-400 px-3"
-          >
-            All Countries
-          </button>
-          <button
             onClick={handleSmallArea}
-            className="border-2 rounded-xl border-teal-400 px-3"
+            className="border-2 rounded-xl border-teal-400 px-3 hover:bg-teal-400 hover:text-indigo-700 focus:border-orange-500"
           >
             {`< Lithuania`}
           </button>
           <button
             onClick={handleOceania}
-            className="border-2 rounded-xl border-teal-400 px-3"
+            className="border-2 rounded-xl border-teal-400 px-3 hover:bg-teal-400 hover:text-indigo-700 focus:border-orange-500"
           >
             Oceania countries
           </button>
         </div>
         <button
           onClick={handleReverseData}
-          className="border-2 rounded-xl border-teal-400 p-0.5 px-3"
+          className="border-2 rounded-xl border-teal-400 p-0.5 px-3 hover:bg-teal-400 hover:text-indigo-700"
         >
-          A-Z
+          {isReversed ? "Z-A" : "A-Z"}
         </button>
       </nav>
-      {currData?.map((country: any, index: number) => {
+      {currentCountries.map((country: any, index: number) => {
         return (
           <div
             key={index}
@@ -88,6 +112,11 @@ const Content = (props: Contentprops) => {
           </div>
         );
       })}
+      <Pagination
+        pages={pages}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
     </div>
   );
 };
